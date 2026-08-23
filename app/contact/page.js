@@ -1,0 +1,337 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+
+export default function ContactPage() {
+    const [loading, setLoading] = useState(true);
+    const [isDark, setIsDark] = useState(false);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [referenceCode, setReferenceCode] = useState('');
+    
+    // Form States
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
+    });
+    const [status, setStatus] = useState({ type: '', text: '' });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setLoading(false), 800);
+
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            setIsDark(true);
+            document.body.classList.add('dark');
+        }
+
+        if (localStorage.getItem('isLoggedIn') === 'true') {
+            setIsLoggedIn(true);
+        }
+
+        const savedRef = localStorage.getItem('generatedReferenceCode');
+        if (savedRef) {
+            setReferenceCode(savedRef);
+        }
+
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) {
+            try {
+                const userData = JSON.parse(savedUser);
+                setFormData(prev => ({
+                    ...prev,
+                    name: userData.name || prev.name,
+                    email: userData.email || prev.email
+                }));
+            } catch (e) {}
+        }
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    const toggleTheme = () => {
+        const nextTheme = !isDark;
+        setIsDark(nextTheme);
+        if (nextTheme) {
+            document.body.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            document.body.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+        }
+    };
+
+    const handleLogout = (e) => {
+        e.preventDefault();
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('user');
+        localStorage.removeItem('userId');
+        window.location.href = '/';
+    };
+
+    const handleLogoClick = (e) => {
+        if (localStorage.getItem('isLoggedIn') === 'true') {
+            e.preventDefault();
+            window.location.href = '/about';
+        }
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setStatus({ type: '', text: '' });
+        setIsSubmitting(true);
+
+        try {
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success !== false) {
+                setStatus({
+                    type: 'success',
+                    text: result.message || "Thank you! Your message has been sent successfully."
+                });
+                setFormData(prev => ({ ...prev, subject: '', message: '' }));
+            } else {
+                setStatus({
+                    type: 'error',
+                    text: result.message || "Failed to send message. Please try again."
+                });
+            }
+        } catch (err) {
+            console.error('Contact submission error:', err);
+            setStatus({
+                type: 'error',
+                text: "Unable to connect to the server. Please check your connection."
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+        <div className={`min-h-screen flex flex-col transition-colors duration-500 ${isDark ? 'dark bg-[#122b2a] text-white' : 'bg-[#FFFFFF] text-[#114b46]'}`}>
+            <style jsx global>{`
+                html {
+                    scroll-behavior: smooth;
+                }
+                :root {
+                    --paper: ${isDark ? '#122b2a' : '#FFFFFF'};
+                    --paper2: ${isDark ? '#0b1c1b' : '#f4fbfb'};
+                    --card: ${isDark ? 'rgba(18, 43, 42, 0.85)' : 'rgba(203, 243, 240, 0.35)'};
+                    --text: ${isDark ? '#FFFFFF' : '#114b46'};
+                    --accent3: #FF9F1C;
+                    --glass: ${isDark ? 'rgba(18, 43, 42, 0.95)' : 'rgba(255, 255, 255, 0.90)'};
+                    --glass-border: ${isDark ? 'rgba(203, 243, 240, 0.20)' : 'rgba(46, 196, 182, 0.25)'};
+                    --shadow: ${isDark ? '0 25px 60px rgba(0, 0, 0, 0.50)' : '0 20px 50px rgba(46, 196, 182, 0.12)'};
+                    --error: #e74c3c;
+                    --success: #2ecc71;
+                }
+                body {
+                    font-family: 'Manrope', sans-serif;
+                    background: var(--paper);
+                    color: var(--text);
+                }
+                h1, h2, h3 {
+                    font-family: 'Cormorant Garamond', serif;
+                }
+            `}</style>
+
+            {/* Page Loader */}
+            <div className={`fixed inset-0 flex justify-center items-center flex-col gap-5 bg-[var(--paper)] z-[99999] transition-opacity duration-600 ${loading ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
+                <div className="w-[70px] h-[70px] rounded-full border-4 border-[var(--glass-border)] border-t-[var(--accent3)] animate-spin"></div>
+                <div className="font-serif text-[54px] font-bold text-[var(--text)]">Sketch <span style={{color: 'var(--accent3)'}}>Tea</span></div>
+            </div>
+
+            {/* Sidebar Overlay & Menu */}
+            <div 
+                className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-[6000] transition-opacity duration-300 ${sidebarOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+                onClick={() => setSidebarOpen(false)}
+            ></div>
+
+            <aside className={`fixed top-0 left-0 w-[300px] h-screen bg-[var(--glass)] backdrop-blur-[25px] border-r border-[var(--glass-border)] z-[6001] p-[40px_30px] flex flex-col gap-[30px] transition-transform duration-400 shadow-[var(--shadow)] ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                <div className="flex justify-between items-center border-b border-[var(--glass-border)] pb-[15px]">
+                    <Link href={isLoggedIn ? '/about' : '/'} onClick={handleLogoClick} className="font-serif text-[2.2rem] font-bold text-[var(--text)] no-underline">
+                        Sketch <span className="text-[var(--accent3)]">Tea</span>
+                    </Link>
+                    <button className="bg-none border-none text-[1.8rem] text-[var(--text)] cursor-pointer" onClick={() => setSidebarOpen(false)}>&times;</button>
+                </div>
+                <ul className="list-none flex flex-col gap-5">
+                    <li><Link href="/about" className="no-underline text-[var(--text)] text-[1.1rem] font-semibold hover:text-[var(--accent3)] transition" onClick={() => setSidebarOpen(false)}>About</Link></li>
+                    <li><Link href="/story-gallery" className="no-underline text-[var(--text)] text-[1.1rem] font-semibold hover:text-[var(--accent3)] transition" onClick={() => setSidebarOpen(false)}>Story Gallery</Link></li>
+                    <li><Link href="/characters" className="no-underline text-[var(--text)] text-[1.1rem] font-semibold hover:text-[var(--accent3)] transition" onClick={() => setSidebarOpen(false)}>Characters</Link></li>
+                    <li><Link href="/other-services" className="no-underline text-[var(--text)] text-[1.1rem] font-semibold hover:text-[var(--accent3)] transition" onClick={() => setSidebarOpen(false)}>Other Services</Link></li>
+                    
+                    {/* Track Order Link in Menu */}
+                    <li>
+                        {referenceCode ? (
+                            <Link 
+                                href={`/order-status/${referenceCode}`} 
+                                className="no-underline text-[var(--accent3)] text-[1.1rem] font-semibold hover:opacity-80 transition flex items-center gap-2" 
+                                onClick={() => setSidebarOpen(false)}
+                            >
+                                Track Order
+                            </Link>
+                        ) : (
+                            <span 
+                                className="no-underline opacity-40 text-[1.1rem] font-semibold flex items-center gap-2 cursor-not-allowed select-none" 
+                                title="No active order to track"
+                            >
+                                Track Order
+                            </span>
+                        )}
+                    </li>
+
+                    <li><Link href="/contact" className="no-underline text-[var(--text)] text-[1.1rem] font-semibold hover:text-[var(--accent3)] transition" onClick={() => setSidebarOpen(false)}>Contact</Link></li>
+                    
+                    {!isLoggedIn ? (
+                        <li><Link href="/" className="no-underline text-[var(--text)] text-[1.1rem] font-semibold hover:text-[var(--accent3)] transition" onClick={() => setSidebarOpen(false)}>Log In / Register</Link></li>
+                    ) : (
+                        <li><a href="#" onClick={handleLogout} className="no-underline text-[var(--error)] text-[1.1rem] font-semibold transition">Log Out</a></li>
+                    )}
+                </ul>
+            </aside>
+
+            {/* Header */}
+            <header className="fixed top-0 left-0 w-full z-[5000] backdrop-blur-[18px] bg-[var(--glass)] border-b border-[var(--glass-border)] shadow-[var(--shadow)]">
+                <nav className="max-w-[1400px] mx-auto flex items-center justify-between p-[16px_30px]">
+                    <button className="bg-none border-none cursor-pointer flex flex-col gap-[5px] p-2 z-[5001]" onClick={() => setSidebarOpen(true)} aria-label="Open Navigation Menu">
+                        <span className="block w-[28px] h-[3px] bg-[var(--text)] rounded-[3px]"></span>
+                        <span className="block w-[28px] h-[3px] bg-[var(--text)] rounded-[3px]"></span>
+                        <span className="block w-[28px] h-[3px] bg-[var(--text)] rounded-[3px]"></span>
+                    </button>
+                    
+                    <Link href={isLoggedIn ? '/about' : '/'} onClick={handleLogoClick} className="font-serif text-[2.2rem] font-bold text-[var(--text)] no-underline">
+                        Sketch <span className="text-[var(--accent3)]">Tea</span>
+                    </Link>
+
+                    {/* Right Action Icons (Track Order & Theme Toggle) */}
+                    <div className="flex items-center gap-3">
+                        {referenceCode ? (
+                            <Link 
+                                href={`/order-status/${referenceCode}`} 
+                                title="Track Order"
+                                className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-[var(--glass-border)] bg-[var(--card)] text-[var(--text)] text-[0.85rem] font-semibold transition hover:border-[var(--accent3)] no-underline"
+                            >
+                                📦 Track
+                            </Link>
+                        ) : (
+                            <span 
+                                title="No active order to track"
+                                className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-[var(--glass-border)] bg-[var(--card)] opacity-40 text-[var(--text)] text-[0.85rem] font-semibold cursor-not-allowed select-none"
+                            >
+                                📦 Track
+                            </span>
+                        )}
+
+                        <button className="w-[44px] h-[44px] border border-[var(--glass-border)] rounded-full cursor-pointer bg-[var(--card)] text-[var(--text)] text-[1.2rem] flex items-center justify-center transition hover:scale-105 hover:border-[var(--accent3)]" onClick={toggleTheme}>
+                            {isDark ? '☀️' : '🌙'}
+                        </button>
+                    </div>
+                </nav>
+            </header>
+
+            {/* Main Content */}
+            <main className="max-w-[900px] mx-auto p-[140px_30px_80px_30px] flex-1 w-full">
+                <div className="text-center mb-[50px]">
+                    <h1 className="text-[clamp(2.8rem,4vw,4rem)] font-bold mb-3">Contact Us</h1>
+                    <p className="max-w-[600px] mx-auto opacity-85 text-[1.1rem]">
+                        Have questions, feedback, or custom artwork requests? Send us a message and we will respond promptly.
+                    </p>
+                </div>
+
+                <div className="bg-[var(--card)] border border-[var(--glass-border)] rounded-[28px] p-[40px_32px] backdrop-blur-[20px] shadow-[var(--shadow)]">
+                    {status.text && (
+                        <div className={`p-[12px_16px] rounded-[12px] text-[0.9rem] mb-5 text-center font-semibold border ${
+                            status.type === 'success' 
+                                ? 'bg-[rgba(46,204,113,0.15)] text-[var(--success)] border-[rgba(46,204,113,0.3)]' 
+                                : 'bg-[rgba(231,76,60,0.15)] text-[var(--error)] border-[rgba(231,76,60,0.3)]'
+                        }`}>
+                            {status.text}
+                        </div>
+                    )}
+
+                    <form onSubmit={handleSubmit}>
+                        <div className="mb-5">
+                            <label htmlFor="name" className="block font-semibold mb-2 text-[0.95rem]">Full Name</label>
+                            <input 
+                                type="text" 
+                                id="name" 
+                                name="name" 
+                                value={formData.name}
+                                onChange={handleChange}
+                                placeholder="Enter your full name" 
+                                required 
+                                className="w-full p-[14px_18px] rounded-[12px] border border-[var(--glass-border)] bg-[var(--paper2)] text-[var(--text)] text-[0.95rem] outline-none transition focus:border-[var(--accent3)] focus:ring-2 focus:ring-[rgba(255,159,28,0.2)]"
+                            />
+                        </div>
+                        <div className="mb-5">
+                            <label htmlFor="email" className="block font-semibold mb-2 text-[0.95rem]">Email Address</label>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                name="email" 
+                                value={formData.email}
+                                onChange={handleChange}
+                                placeholder="your.email@example.com" 
+                                required 
+                                className="w-full p-[14px_18px] rounded-[12px] border border-[var(--glass-border)] bg-[var(--paper2)] text-[var(--text)] text-[0.95rem] outline-none transition focus:border-[var(--accent3)] focus:ring-2 focus:ring-[rgba(255,159,28,0.2)]"
+                            />
+                        </div>
+                        <div className="mb-5">
+                            <label htmlFor="subject" className="block font-semibold mb-2 text-[0.95rem]">Subject</label>
+                            <input 
+                                type="text" 
+                                id="subject" 
+                                name="subject" 
+                                value={formData.subject}
+                                onChange={handleChange}
+                                placeholder="What is this regarding?" 
+                                required 
+                                className="w-full p-[14px_18px] rounded-[12px] border border-[var(--glass-border)] bg-[var(--paper2)] text-[var(--text)] text-[0.95rem] outline-none transition focus:border-[var(--accent3)] focus:ring-2 focus:ring-[rgba(255,159,28,0.2)]"
+                            />
+                        </div>
+                        <div className="mb-5">
+                            <label htmlFor="message" className="block font-semibold mb-2 text-[0.95rem]">Message</label>
+                            <textarea 
+                                id="message" 
+                                name="message" 
+                                rows="5" 
+                                value={formData.message}
+                                onChange={handleChange}
+                                placeholder="Write your message here..." 
+                                required 
+                                className="w-full p-[14px_18px] rounded-[12px] border border-[var(--glass-border)] bg-[var(--paper2)] text-[var(--text)] text-[0.95rem] outline-none transition focus:border-[var(--accent3)] focus:ring-2 focus:ring-[rgba(255,159,28,0.2)] resize-y"
+                            ></textarea>
+                        </div>
+                        <button 
+                            type="submit" 
+                            disabled={isSubmitting}
+                            className="w-full p-4 rounded-full border-none bg-[var(--accent3)] text-white text-[1rem] font-bold cursor-pointer transition duration-350 shadow-[0_10px_25px_rgba(255,159,28,0.35)] hover:bg-[#e58a0f] hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                        >
+                            {isSubmitting ? 'Sending Message...' : 'Send Message'}
+                        </button>
+                    </form>
+                </div>
+            </main>
+
+            {/* Footer */}
+            <footer className="text-center p-[30px] border-t border-[var(--glass-border)] text-[0.85rem] opacity-80 mt-auto">
+                <p>&copy; 2026 Sketch Tea Co. All Rights Reserved.</p>
+            </footer>
+        </div>
+    );
+}
