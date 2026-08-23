@@ -2,16 +2,10 @@ import { NextResponse } from 'next/server';
 import db from '@/lib/db'; 
 import { writeFile } from 'fs/promises';
 import path from 'path';
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
-// Configure Nodemailer transporter using Gmail
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
-});
+// Initialize Resend with your API key
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req) {
     try {
@@ -21,7 +15,7 @@ export async function POST(req) {
         const userId = formData.get('userId');
         const fullName = formData.get('fullName') || 'Valued Customer';
         const file = formData.get('reference_file');
-        const clientProvidedRef = formData.get('referenceCode'); // Grab the sequential reference code from the frontend
+        const clientProvidedRef = formData.get('referenceCode');
 
         let filePath = null;
         let attachments = [];
@@ -32,19 +26,17 @@ export async function POST(req) {
             const buffer = Buffer.from(bytes);
             
             const filename = `${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(file.name)}`;
-            const uploadDir = path.join(process.cwd(), 'public/uploads');
             filePath = `/uploads/${filename}`;
             
             await writeFile(path.join(process.cwd(), 'public', filePath), buffer);
 
-            // Add file as an attachment for Nodemailer
+            // Add file as an attachment for Resend
             attachments.push({
                 filename: file.name || 'attachment.png',
-                content: buffer
+                content: Buffer.from(buffer)
             });
         }
 
-        // Use the sequential reference code if available, otherwise fall back safely
         let referenceCode = clientProvidedRef;
         if (!referenceCode) {
             const randomNum = Math.floor(1000 + Math.random() * 9000);
@@ -53,7 +45,7 @@ export async function POST(req) {
 
         const connection = typeof db.query === 'function' ? db : (db.promise ? db.promise() : db);
 
-        // Make sure your table has columns: reference_code and status
+        // Save into MySQL database
         const query = `INSERT INTO service_orders (reference_code, user_id, contact_email, design_ideas, reference_file_path, status) VALUES (?, ?, ?, ?, ?, 'Payment Pending Verification')`;
         const [result] = await connection.query(query, [referenceCode, userId || null, email, ideas, filePath]);
         const orderId = result.insertId;
@@ -63,9 +55,10 @@ export async function POST(req) {
         const protocol = host.includes('localhost') ? 'http' : 'https';
         const trackerUrl = `${protocol}://${host}/order-status/${referenceCode}`;
 
-        // 1. Send Email to Customer
-        const customerMailOptions = {
-            from: process.env.EMAIL_USER,
+        // 1. Send Email to Customer using Resend
+        console.log("Attempting to send customer email via Resend to:", email);
+        await resend.emails.send({
+            from: 'Sketch Tea <onboarding@resend.dev>', // Change to your custom domain later if you verify one
             to: email,
             subject: `Thank you for your order, ${fullName}!`,
             html: `
@@ -90,30 +83,27 @@ export async function POST(req) {
                     <p style="margin-top: 25px; font-style: italic; color: #555;">Thank you for trusting our service, we hope for your continued support!</p>
                 </div>
             `
-        };
+        });
 
-        console.log("Attempting to send customer email to:", email);
-        await transporter.sendMail(customerMailOptions);
-        console.log("Customer email sent successfully!");
-
-        // 2. Send Email to Admin
-        const adminMailOptions = {
-            from: `"Sketch Tea Admin" <${process.env.EMAIL_USER}>`,
-            to: process.env.EMAIL_USER,
-            subject: `🔔 New Service Order #${orderId}!`,
-            html: `
-                <h2>New Order Submitted</h2>
-                <p><strong>Order ID:</strong> #${orderId}</p>
-                <p><strong>Customer Email:</strong> ${email}</p>
-                <p><strong>Reference Code:</strong> <span style="color: #FF9F1C; font-weight: bold;">${referenceCode}</span></p>
-                <p><strong>Design Ideas:</strong> ${ideas}</p>
-            `,
-            attachments: attachments
-        };
-
-        console.log("Attempting to send admin email to:", process.env.EMAIL_USER);
-        await transporter.sendMail(adminMailOptions);
-        console.log("Admin email sent successfully!");
+        // 2. Send Email to Admin using Resend
+        // NOTE: On Resend's free tier, testing emails can only go to your own Resend account email
+        const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER; 
+        if (adminEmail) {
+            console.log("Attempting to send admin notification via Resend...");
+            await resend.emails.send({
+                from: 'Sketch Tea <onboarding@resend.dev>',
+                to: adminEmail,
+                subject: `🔔 New Service Order #${orderId}!`,
+                html: `
+                    <h2>New Order Submitted</h2>
+                    <p><strong>Order ID:</strong> #${orderId}</p>
+                    <p><strong>Customer Email:</strong> ${email}</p>
+                    <p><strong>Reference Code:</strong> <span style="color: #FF9F1C; font-weight: bold;">${referenceCode}</span></p>
+                    <p><strong>Design Ideas:</strong> ${ideas}</p>
+                `,
+                attachments: attachments
+            });
+        }
 
         return NextResponse.json({
             success: true,
