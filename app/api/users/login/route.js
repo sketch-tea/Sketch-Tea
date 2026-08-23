@@ -26,7 +26,7 @@ export async function POST(req) {
 
         const user = rows[0];
 
-        // 3. Password verification using bcrypt
+        // 3. Password verification using bcrypt and correct column name ('password')
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (!isPasswordValid) {
@@ -36,16 +36,7 @@ export async function POST(req) {
             );
         }
 
-        // 4. CHECK EMAIL VERIFICATION (NEW)
-        // If the user's is_verified column is false/0, block the login
-        if (!user.is_verified) {
-            return NextResponse.json(
-                { success: false, message: 'Please verify your email address before logging in. Check your inbox.' },
-                { status: 403 } 
-            );
-        }
-
-        // 5. Login successful
+        // 4. Login successful
         return NextResponse.json({
             success: true,
             message: 'Login successful!',
