@@ -217,7 +217,7 @@ export default function OrderStatusPage() {
                             ✓ Order Submitted Successfully
                         </div>
                         <h1 className="text-[clamp(2.5rem,4vw,3.8rem)] font-bold mb-3">Live Order Tracker</h1>
-                        <p className="opacity-85 text-[1.05rem]">Bookmark this page or check your email for updates. View your current selection and entire order history below.</p>
+                        <p className="opacity-85 text-[1.05rem]">Review your active order details and manual payment information below.</p>
                     </div>
 
                     {/* Current Selected Reference Card */}
@@ -257,8 +257,29 @@ export default function OrderStatusPage() {
                             </div>
                         </div>
 
+                        {/* NEW: Payment / Bank Details Box */}
+                        <div className="p-5 rounded-2xl bg-[var(--paper2)] border border-[var(--glass-border)] mb-6">
+                            <h4 className="font-serif text-[1.3rem] font-bold mb-2 text-[var(--accent3)]">Payment Instructions</h4>
+                            <p className="text-[0.9rem] opacity-85 mb-4">Please complete your manual transfer using the details below. Include your reference code <strong>{referenceCode}</strong> in your transaction notes.</p>
+                            
+                            <div className="space-y-2 text-[0.9rem]">
+                                <div className="flex justify-between border-b border-[var(--glass-border)] pb-1.5">
+                                    <span className="opacity-70">Bank / Provider:</span>
+                                    <span className="font-semibold">Wise (or [Insert Bank Name])</span>
+                                </div>
+                                <div className="flex justify-between border-b border-[var(--glass-border)] pb-1.5">
+                                    <span className="opacity-70">Account Name:</span>
+                                    <span className="font-semibold">[Insert Account Name]</span>
+                                </div>
+                                <div className="flex justify-between pb-1.5">
+                                    <span className="opacity-70">Account Number:</span>
+                                    <span className="font-mono font-semibold text-[var(--accent3)]">[Insert Account Number]</span>
+                                </div>
+                            </div>
+                        </div>
+
                         <div className="p-4 rounded-xl bg-[var(--paper2)] border border-[var(--glass-border)] text-[0.85rem] opacity-85 leading-relaxed">
-                            💡 <strong>What happens next?</strong> An email confirmation has been dispatched to your inbox containing this direct tracker link. You can bookmark this URL to check back here anytime!
+                            💡 <strong>What happens next?</strong> Once you send your payment, our team will review and verify your transaction, and your status will automatically update here!
                             {lastUpdated && <span className="block text-[10px] opacity-40 mt-2">Last checked: {lastUpdated}</span>}
                         </div>
                     </div>
