@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-export default function StoryGalleryPage() {
+export default function SpiritGardenSeriesPage() {
     const [loading, setLoading] = useState(true);
     const [isDark, setIsDark] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -107,7 +107,6 @@ export default function StoryGalleryPage() {
                     <li><Link href="/characters" className="no-underline text-[var(--text)] text-[1.1rem] font-semibold hover:text-[var(--accent3)] transition" onClick={() => setSidebarOpen(false)}>Characters</Link></li>
                     <li><Link href="/other-services" className="no-underline text-[var(--text)] text-[1.1rem] font-semibold hover:text-[var(--accent3)] transition" onClick={() => setSidebarOpen(false)}>Other Services</Link></li>
                     
-                    {/* Track Order Link in Menu */}
                     <li>
                         {referenceCode ? (
                             <Link 
@@ -145,7 +144,6 @@ export default function StoryGalleryPage() {
                         Sketch <span className="text-[var(--accent3)]">Tea</span>
                     </Link>
 
-                    {/* Right Action Icons (Track Order & Theme Toggle) */}
                     <div className="flex items-center gap-3">
                         {referenceCode ? (
                             <Link 
@@ -172,27 +170,26 @@ export default function StoryGalleryPage() {
             </header>
 
             {/* Main Content */}
-            <main className="max-w-[1200px] mx-auto p-[140px_30px_80px_30px] flex-1">
-                <div className="text-center mb-[60px]">
-                    <h1 className="text-[clamp(2.8rem,4vw,4rem)] font-bold mb-3">Story Gallery</h1>
-                    <p className="max-w-[600px] mx-auto opacity-85 text-[1.1rem]">
-                        Every blend holds a tale. Immerse yourself in the visual journals and watercolor chapters behind our signature teas.
-                    </p>
-                </div>
+            <main className="max-w-[800px] mx-auto p-[140px_30px_80px_30px] flex-1 w-full">
+                <Link href="/story-gallery" className="text-[#FF9F1C] font-semibold no-underline mb-6 inline-block">
+                    ← Back to Story Gallery
+                </Link>
+                <span className="block font-bold text-[0.75rem] uppercase text-[#FF9F1C] mb-2 tracking-[0.05em]">Series Overview</span>
+                <h1 className="text-4xl font-serif font-bold mb-4">Spirit Garden</h1>
+                <p className="text-opacity-85 text-lg mb-8">
+                    Explore the serialized chapters of the botanical realm. Choose a chapter below to begin reading.
+                </p>
 
-                <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-[30px]">
-                    {/* Spirit Garden Card */}
-                    <article className="bg-[var(--card)] border border-[var(--glass-border)] rounded-[20px] overflow-hidden backdrop-blur-[10px] transition-transform duration-350 hover:-translate-y-1.5 hover:shadow-[var(--shadow)]">
-                        <div className="w-full h-[240px] bg-[var(--paper2)] flex items-center justify-center border-b border-[var(--glass-border)] text-[3rem]">
-                            🌿✨
-                        </div>
-                        <div className="p-6">
-                            <span className="block font-bold text-[0.75rem] uppercase text-[var(--accent3)] mb-2 tracking-[0.05em]">Series • Botanical Realm</span>
-                            <h3 className="text-[1.8rem] font-bold mb-[10px]">Spirit Garden</h3>
-                            <p className="text-[0.95rem] opacity-85 mb-4">Step through the hidden gates where botanical spirits bloom, whispering ancient secrets of earth, leaf, and brewing harmony.</p>
-                            <Link href="/story-gallery/stories/spirit-garden" className="no-underline text-[var(--accent3)] font-bold text-[0.9rem]">Read Chapters →</Link>
-                        </div>
-                    </article>
+                <div className="flex flex-col gap-4">
+                    <Link href="/story-gallery/stories/spirit-garden/chapter-1" className="p-5 rounded-xl bg-[var(--card)] border border-[var(--glass-border)] hover:border-[#FF9F1C] transition no-underline text-[var(--text)]">
+                        <span className="text-xs uppercase text-[#FF9F1C] font-bold block mb-1">Chapter I</span>
+                        <h2 className="text-2xl font-serif font-bold">The Awakening Seedling</h2>
+                    </Link>
+
+                    <Link href="/story-gallery/stories/spirit-garden/chapter-2" className="p-5 rounded-xl bg-[var(--card)] border border-[var(--glass-border)] hover:border-[#FF9F1C] transition no-underline text-[var(--text)]">
+                        <span className="text-xs uppercase text-[#FF9F1C] font-bold block mb-1">Chapter II</span>
+                        <h2 className="text-2xl font-serif font-bold">Whispers Beneath the Roots</h2>
+                    </Link>
                 </div>
             </main>
 

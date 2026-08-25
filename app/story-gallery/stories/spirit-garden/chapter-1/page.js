@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
-export default function StoryGalleryPage() {
+export default function SpiritGardenChapter1() {
+    const router = useRouter();
     const [loading, setLoading] = useState(true);
     const [isDark, setIsDark] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -48,13 +50,15 @@ export default function StoryGalleryPage() {
         localStorage.removeItem('isLoggedIn');
         localStorage.removeItem('user');
         localStorage.removeItem('userId');
-        window.location.href = '/';
+        router.push('/');
     };
 
     const handleLogoClick = (e) => {
+        e.preventDefault();
         if (localStorage.getItem('isLoggedIn') === 'true') {
-            e.preventDefault();
-            window.location.href = '/about';
+            router.push('/about');
+        } else {
+            router.push('/');
         }
     };
 
@@ -96,9 +100,9 @@ export default function StoryGalleryPage() {
 
             <aside className={`fixed top-0 left-0 w-[300px] h-screen bg-[var(--glass)] backdrop-blur-[25px] border-r border-[var(--glass-border)] z-[6001] p-[40px_30px] flex flex-col gap-[30px] transition-transform duration-400 shadow-[var(--shadow)] ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                 <div className="flex justify-between items-center border-b border-[var(--glass-border)] pb-[15px]">
-                    <Link href={isLoggedIn ? '/about' : '/'} onClick={handleLogoClick} className="font-serif text-[2.2rem] font-bold text-[var(--text)] no-underline">
+                    <a href="#" onClick={handleLogoClick} className="font-serif text-[2.2rem] font-bold text-[var(--text)] no-underline">
                         Sketch <span className="text-[var(--accent3)]">Tea</span>
-                    </Link>
+                    </a>
                     <button className="bg-none border-none text-[1.8rem] text-[var(--text)] cursor-pointer" onClick={() => setSidebarOpen(false)}>&times;</button>
                 </div>
                 <ul className="list-none flex flex-col gap-5">
@@ -107,7 +111,6 @@ export default function StoryGalleryPage() {
                     <li><Link href="/characters" className="no-underline text-[var(--text)] text-[1.1rem] font-semibold hover:text-[var(--accent3)] transition" onClick={() => setSidebarOpen(false)}>Characters</Link></li>
                     <li><Link href="/other-services" className="no-underline text-[var(--text)] text-[1.1rem] font-semibold hover:text-[var(--accent3)] transition" onClick={() => setSidebarOpen(false)}>Other Services</Link></li>
                     
-                    {/* Track Order Link in Menu */}
                     <li>
                         {referenceCode ? (
                             <Link 
@@ -141,11 +144,10 @@ export default function StoryGalleryPage() {
                         <span className="block w-[28px] h-[3px] bg-[var(--text)] rounded-[3px]"></span>
                     </button>
                     
-                    <Link href={isLoggedIn ? '/about' : '/'} onClick={handleLogoClick} className="font-serif text-[2.2rem] font-bold text-[var(--text)] no-underline">
+                    <a href="#" onClick={handleLogoClick} className="font-serif text-[2.2rem] font-bold text-[var(--text)] no-underline">
                         Sketch <span className="text-[var(--accent3)]">Tea</span>
-                    </Link>
+                    </a>
 
-                    {/* Right Action Icons (Track Order & Theme Toggle) */}
                     <div className="flex items-center gap-3">
                         {referenceCode ? (
                             <Link 
@@ -171,28 +173,60 @@ export default function StoryGalleryPage() {
                 </nav>
             </header>
 
-            {/* Main Content */}
-            <main className="max-w-[1200px] mx-auto p-[140px_30px_80px_30px] flex-1">
-                <div className="text-center mb-[60px]">
-                    <h1 className="text-[clamp(2.8rem,4vw,4rem)] font-bold mb-3">Story Gallery</h1>
-                    <p className="max-w-[600px] mx-auto opacity-85 text-[1.1rem]">
-                        Every blend holds a tale. Immerse yourself in the visual journals and watercolor chapters behind our signature teas.
+            {/* Main Content / Chapter Reader */}
+            <main className="max-w-[800px] mx-auto p-[140px_30px_80px_30px] flex-1">
+                <div className="mb-8">
+                    <Link href="/story-gallery/stories/spirit-garden" className="no-underline text-[var(--accent3)] font-semibold text-[0.9rem] flex items-center gap-2 mb-4">
+                        ← Back to Spirit Garden Overview
+                    </Link>
+                    <span className="block font-bold text-[0.75rem] uppercase text-[var(--accent3)] mb-2 tracking-[0.05em]">Chapter I • Botanical Realm</span>
+                    <h1 className="text-[clamp(2.5rem,4vw,3.5rem)] font-bold mb-4 leading-tight">The Awakening Seedling</h1>
+                    <p className="text-sm opacity-70 italic">Setting: The Mist-Veiled Greenhouse at Dawn</p>
+                </div>
+
+                <hr className="border-0 h-[1px] bg-[var(--glass-border)] mb-8" />
+
+                {/* Creative Story Prose */}
+                <div className="flex flex-col gap-6 text-[1.15rem] leading-relaxed opacity-95 font-serif">
+                    <p className="first-letter:text-5xl first-letter:font-bold first-letter:float-left first-letter:mr-3 first-letter:text-[var(--accent3)]">
+                        Dawn does not merely arrive in the high-altitude glasshouses; it unfurls like a wet watercolor wash across gray linen. At four hundred meters above the valley floor, the world was still choked in a quiet, mother-of-pearl fog that tasted faintly of crushed pine needles and damp slate.
+                    </p>
+
+                    <p>
+                        Master Julian sat motionless at his scarred cedar workbench, his fingers curled around a porcelain cup of yesterday&apos;s cooling white tea. Before him sat a single, unassuming terracotta pot filled with rich forest loam. For three weeks, it had held nothing save for the phantom scent of morning dew and his own quiet doubts.
+                    </p>
+
+                    <p>
+                        Then, the soil sighed.
+                    </p>
+
+                    <p>
+                        It wasn&apos;t a sound heard with the ears, but a low, rhythmic thrum felt deep within the marrow of the wrists—a vibration akin to a cello string plucked in an empty cathedral. 
+                    </p>
+
+                    <blockquote className="border-l-2 border-[var(--accent3)] pl-4 my-4 italic text-base opacity-85">
+                        &ldquo;Slowly now,&rdquo; Julian whispered into the steam of his cup, his charcoal pencil hovering above the cream-colored pages of his journal like a dragonfly over a pond.
+                    </blockquote>
+
+                    <p>
+                        A single shoot fractured the crust of the earth. But it did not burst forth in ordinary shades of chlorophyll green. Instead, it rose clad in a shimmering, translucent amber—a filament of liquid light that seemed to drink the shadows straight out of the corners of the room. As the first sharp needle of golden sunlight pierced the frosted glass above, hitting the tip of the tiny stem, the leaves blossomed outward in a silent cascade of crystal petals.
+                    </p>
+
+                    <p>
+                        A scent bloomed instantly on the air: sweet white peach, frost-bitten mint, and something ancient—the rich, untamed breath of a forest that had never known an axe. The seedling wasn&apos;t just growing; it was singing its first note.
+                    </p>
+
+                    <p>
+                        Julian dipped his brush into the inkwell, his heart keeping time with the plant&apos;s quiet pulse. The garden was waking up, and the harvest of dreams had officially begun.
                     </p>
                 </div>
 
-                <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-[30px]">
-                    {/* Spirit Garden Card */}
-                    <article className="bg-[var(--card)] border border-[var(--glass-border)] rounded-[20px] overflow-hidden backdrop-blur-[10px] transition-transform duration-350 hover:-translate-y-1.5 hover:shadow-[var(--shadow)]">
-                        <div className="w-full h-[240px] bg-[var(--paper2)] flex items-center justify-center border-b border-[var(--glass-border)] text-[3rem]">
-                            🌿✨
-                        </div>
-                        <div className="p-6">
-                            <span className="block font-bold text-[0.75rem] uppercase text-[var(--accent3)] mb-2 tracking-[0.05em]">Series • Botanical Realm</span>
-                            <h3 className="text-[1.8rem] font-bold mb-[10px]">Spirit Garden</h3>
-                            <p className="text-[0.95rem] opacity-85 mb-4">Step through the hidden gates where botanical spirits bloom, whispering ancient secrets of earth, leaf, and brewing harmony.</p>
-                            <Link href="/story-gallery/stories/spirit-garden" className="no-underline text-[var(--accent3)] font-bold text-[0.9rem]">Read Chapters →</Link>
-                        </div>
-                    </article>
+                {/* Footer Navigation within the Chapter */}
+                <div className="mt-16 pt-8 border-t border-[var(--glass-border)] flex justify-between items-center">
+                    <Link href="/story-gallery/stories/spirit-garden" className="no-underline text-[var(--text)] opacity-80 hover:opacity-100 font-semibold text-[0.9rem]">
+                        ← Series Overview
+                    </Link>
+                    <span className="text-xs opacity-50 uppercase tracking-widest">End of Chapter I</span>
                 </div>
             </main>
 

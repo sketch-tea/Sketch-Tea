@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-export default function StoryGalleryPage() {
+export default function SpiritGardenOverview() {
     const [loading, setLoading] = useState(true);
     const [isDark, setIsDark] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -107,7 +107,6 @@ export default function StoryGalleryPage() {
                     <li><Link href="/characters" className="no-underline text-[var(--text)] text-[1.1rem] font-semibold hover:text-[var(--accent3)] transition" onClick={() => setSidebarOpen(false)}>Characters</Link></li>
                     <li><Link href="/other-services" className="no-underline text-[var(--text)] text-[1.1rem] font-semibold hover:text-[var(--accent3)] transition" onClick={() => setSidebarOpen(false)}>Other Services</Link></li>
                     
-                    {/* Track Order Link in Menu */}
                     <li>
                         {referenceCode ? (
                             <Link 
@@ -145,7 +144,6 @@ export default function StoryGalleryPage() {
                         Sketch <span className="text-[var(--accent3)]">Tea</span>
                     </Link>
 
-                    {/* Right Action Icons (Track Order & Theme Toggle) */}
                     <div className="flex items-center gap-3">
                         {referenceCode ? (
                             <Link 
@@ -171,28 +169,72 @@ export default function StoryGalleryPage() {
                 </nav>
             </header>
 
-            {/* Main Content */}
-            <main className="max-w-[1200px] mx-auto p-[140px_30px_80px_30px] flex-1">
-                <div className="text-center mb-[60px]">
-                    <h1 className="text-[clamp(2.8rem,4vw,4rem)] font-bold mb-3">Story Gallery</h1>
-                    <p className="max-w-[600px] mx-auto opacity-85 text-[1.1rem]">
-                        Every blend holds a tale. Immerse yourself in the visual journals and watercolor chapters behind our signature teas.
+            {/* Main Content / Overview */}
+            <main className="max-w-[900px] mx-auto p-[140px_30px_80px_30px] flex-1">
+                <div className="mb-6">
+                    <Link href="/story-gallery" className="no-underline text-[var(--accent3)] font-semibold text-[0.9rem] flex items-center gap-2 mb-4">
+                        ← Back to Story Gallery
+                    </Link>
+                    <span className="block font-bold text-[0.75rem] uppercase text-[var(--accent3)] mb-2 tracking-[0.05em]">Series Overview</span>
+                    <h1 className="text-[clamp(2.8rem,4.5vw,4rem)] font-bold mb-4 leading-tight">The Spirit Garden</h1>
+                    <p className="text-[1.2rem] opacity-80 leading-relaxed font-serif">
+                        High above the valley floor in mist-veiled glasshouses, botanical realms pulse with ancient energies, crystal flora, and whispered secrets waiting to be drawn.
                     </p>
                 </div>
 
-                <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-[30px]">
-                    {/* Spirit Garden Card */}
-                    <article className="bg-[var(--card)] border border-[var(--glass-border)] rounded-[20px] overflow-hidden backdrop-blur-[10px] transition-transform duration-350 hover:-translate-y-1.5 hover:shadow-[var(--shadow)]">
-                        <div className="w-full h-[240px] bg-[var(--paper2)] flex items-center justify-center border-b border-[var(--glass-border)] text-[3rem]">
-                            🌿✨
+                <hr className="border-0 h-[1px] bg-[var(--glass-border)] mb-10" />
+
+                {/* Synopsis / Details */}
+                <div className="grid md:grid-cols-3 gap-8 mb-12">
+                    <div className="p-6 rounded-2xl bg-[var(--card)] border border-[var(--glass-border)] flex flex-col justify-between">
+                        <div>
+                            <span className="text-xs uppercase tracking-widest text-[var(--accent3)] font-bold block mb-2">Setting</span>
+                            <h3 className="text-xl font-bold mb-2">High-Altitude Glasshouses</h3>
+                            <p className="text-sm opacity-80">A sanctuary wrapped in pine scents, damp slate, and frost-bitten morning air.</p>
                         </div>
-                        <div className="p-6">
-                            <span className="block font-bold text-[0.75rem] uppercase text-[var(--accent3)] mb-2 tracking-[0.05em]">Series • Botanical Realm</span>
-                            <h3 className="text-[1.8rem] font-bold mb-[10px]">Spirit Garden</h3>
-                            <p className="text-[0.95rem] opacity-85 mb-4">Step through the hidden gates where botanical spirits bloom, whispering ancient secrets of earth, leaf, and brewing harmony.</p>
-                            <Link href="/story-gallery/stories/spirit-garden" className="no-underline text-[var(--accent3)] font-bold text-[0.9rem]">Read Chapters →</Link>
+                    </div>
+                    <div className="p-6 rounded-2xl bg-[var(--card)] border border-[var(--glass-border)] flex flex-col justify-between">
+                        <div>
+                            <span className="text-xs uppercase tracking-widest text-[var(--accent3)] font-bold block mb-2">Core Theme</span>
+                            <h3 className="text-xl font-bold mb-2">Awakening & Creation</h3>
+                            <p className="text-sm opacity-80">Exploring the fragile boundary between botanical science and living magic.</p>
                         </div>
-                    </article>
+                    </div>
+                    <div className="p-6 rounded-2xl bg-[var(--card)] border border-[var(--glass-border)] flex flex-col justify-between">
+                        <div>
+                            <span className="text-xs uppercase tracking-widest text-[var(--accent3)] font-bold block mb-2">Format</span>
+                            <h3 className="text-xl font-bold mb-2">Episodic Chapters</h3>
+                            <p className="text-sm opacity-80">Read through illustrated narrative entries crafted with charcoal and ink aesthetics.</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Chapters Section */}
+                <h2 className="text-2xl font-bold mb-6">Available Chapters</h2>
+                <div className="flex flex-col gap-4">
+                    <Link 
+                        href="/story-gallery/stories/spirit-garden/chapter-1" 
+                        className="p-6 rounded-2xl bg-[var(--card)] border border-[var(--glass-border)] hover:border-[var(--accent3)] transition flex items-center justify-between no-underline text-[var(--text)] group"
+                    >
+                        <div>
+                            <span className="text-xs uppercase tracking-widest text-[var(--accent3)] font-bold block mb-1">Chapter I</span>
+                            <h3 className="text-2xl font-bold group-hover:text-[var(--accent3)] transition">The Awakening Seedling</h3>
+                            <p className="text-sm opacity-70 mt-1">Master Julian sits at his cedar workbench as a mysterious amber shoot breaks through the forest loam.</p>
+                        </div>
+                        <span className="text-xl font-bold text-[var(--accent3)]">Read →</span>
+                    </Link>
+
+                    <Link 
+                        href="/story-gallery/stories/spirit-garden/chapter-2" 
+                        className="p-6 rounded-2xl bg-[var(--card)] border border-[var(--glass-border)] hover:border-[var(--accent3)] transition flex items-center justify-between no-underline text-[var(--text)] group"
+                    >
+                        <div>
+                            <span className="text-xs uppercase tracking-widest text-[var(--accent3)] font-bold block mb-1">Chapter II</span>
+                            <h3 className="text-2xl font-bold group-hover:text-[var(--accent3)] transition">The Resonance of Leaves</h3>
+                            <p className="text-sm opacity-70 mt-1">Master Julian and Elena harvest the first amber leaf as it hums with bioluminescent energy.</p>
+                        </div>
+                        <span className="text-xl font-bold text-[var(--accent3)]">Read →</span>
+                    </Link>
                 </div>
             </main>
 
