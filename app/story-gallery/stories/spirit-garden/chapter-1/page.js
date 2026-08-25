@@ -226,7 +226,11 @@ export default function SpiritGardenChapter1() {
                     <Link href="/story-gallery/stories/spirit-garden" className="no-underline text-[var(--text)] opacity-80 hover:opacity-100 font-semibold text-[0.9rem]">
                         ← Series Overview
                     </Link>
-                    <span className="text-xs opacity-50 uppercase tracking-widest">End of Chapter I</span>
+                    
+                    {/* Added Chapter 2 Link */}
+                    <Link href="/story-gallery/stories/spirit-garden/chapter-2" className="no-underline text-[var(--accent3)] font-semibold text-[0.95rem] flex items-center gap-2 hover:opacity-85 transition">
+                        Chapter II: The Resonance of Leaves →
+                    </Link>
                 </div>
             </main>
 
