@@ -184,8 +184,8 @@ export default function SpiritGardenOverview() {
 
                 <hr className="border-0 h-[1px] bg-[var(--glass-border)] mb-10" />
 
-                {/* Synopsis / Details */}
-                <div className="grid md:grid-cols-3 gap-8 mb-12">
+                {/* Synopsis / Details (Adjusted to 2 columns since the 3rd block was removed) */}
+                <div className="grid md:grid-cols-2 gap-8 mb-12">
                     <div className="p-6 rounded-2xl bg-[var(--card)] border border-[var(--glass-border)] flex flex-col justify-between">
                         <div>
                             <span className="text-xs uppercase tracking-widest text-[var(--accent3)] font-bold block mb-2">Setting</span>
@@ -198,13 +198,6 @@ export default function SpiritGardenOverview() {
                             <span className="text-xs uppercase tracking-widest text-[var(--accent3)] font-bold block mb-2">Core Theme</span>
                             <h3 className="text-xl font-bold mb-2">Awakening & Creation</h3>
                             <p className="text-sm opacity-80">Exploring the fragile boundary between botanical science and living magic.</p>
-                        </div>
-                    </div>
-                    <div className="p-6 rounded-2xl bg-[var(--card)] border border-[var(--glass-border)] flex flex-col justify-between">
-                        <div>
-                            <span className="text-xs uppercase tracking-widest text-[var(--accent3)] font-bold block mb-2">Format</span>
-                            <h3 className="text-xl font-bold mb-2">Episodic Chapters</h3>
-                            <p className="text-sm opacity-80">Read through illustrated narrative entries crafted with charcoal and ink aesthetics.</p>
                         </div>
                     </div>
                 </div>
