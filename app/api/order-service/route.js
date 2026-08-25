@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
-import db from '@/lib/db'; 
-import { writeFile } from 'fs/promises';
-import path from 'path';
+import db '@/lib/db'; 
 import { Resend } from 'resend';
 
 // Initialize Resend with your API key
@@ -20,20 +18,17 @@ export async function POST(req) {
         let filePath = null;
         let attachments = [];
 
-        // Handle file upload if present
+        // Handle file upload entirely in memory (No disk writing!)
         if (file && typeof file === 'object' && file.size > 0) {
             const bytes = await file.arrayBuffer();
             const buffer = Buffer.from(bytes);
             
-            const filename = `${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(file.name)}`;
-            filePath = `/uploads/${filename}`;
-            
-            await writeFile(path.join(process.cwd(), 'public', filePath), buffer);
+            filePath = `[In-Memory File: ${file.name}]`; // Optional label for database tracking
 
-            // Add file as an attachment for Resend
+            // Add file directly as an in-memory attachment for Resend
             attachments.push({
                 filename: file.name || 'attachment.png',
-                content: Buffer.from(buffer)
+                content: buffer
             });
         }
 
@@ -45,7 +40,7 @@ export async function POST(req) {
 
         const connection = typeof db.query === 'function' ? db : (db.promise ? db.promise() : db);
 
-        // Save into MySQL database
+        // Save into MySQL database (saving filePath as null or a text label since we aren't using local disk)
         const query = `INSERT INTO service_orders (reference_code, user_id, contact_email, design_ideas, reference_file_path, status) VALUES (?, ?, ?, ?, ?, 'Payment Pending Verification')`;
         const [result] = await connection.query(query, [referenceCode, userId || null, email, ideas, filePath]);
         const orderId = result.insertId;
@@ -58,7 +53,7 @@ export async function POST(req) {
         // 1. Send Email to Customer using Resend
         console.log("Attempting to send customer email via Resend to:", email);
         await resend.emails.send({
-            from: 'Sketch Tea <onboarding@resend.dev>', // Change to your custom domain later if you verify one
+            from: 'Sketch Tea <onboarding@resend.dev>',
             to: email,
             subject: `Thank you for your order, ${fullName}!`,
             html: `
@@ -85,8 +80,7 @@ export async function POST(req) {
             `
         });
 
-        // 2. Send Email to Admin using Resend
-        // NOTE: On Resend's free tier, testing emails can only go to your own Resend account email
+        // 2. Send Email to Admin using Resend (includes the attached image from memory)
         const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER; 
         if (adminEmail) {
             console.log("Attempting to send admin notification via Resend...");

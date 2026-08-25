@@ -356,7 +356,10 @@ export default function OtherServicesPage() {
 
                             <div className="mb-[22px]">
                                 <label className="block font-semibold mb-2 text-[0.95rem]">Reference Pictures (Optional)</label>
-                                <div className="relative border-2 border-dashed border-[var(--glass-border)] rounded-[16px] p-6 text-center bg-[var(--paper2)] cursor-pointer transition hover:border-[var(--accent3)] hover:bg-[var(--card)]">
+                                <label 
+                                    htmlFor="reference_file"
+                                    className="relative flex flex-col items-center justify-center border-2 border-dashed border-[var(--glass-border)] rounded-[16px] p-6 text-center bg-[var(--paper2)] cursor-pointer transition hover:border-[var(--accent3)] hover:bg-[var(--card)] block w-full"
+                                >
                                     <input 
                                         type="file" 
                                         ref={fileInputRef}
@@ -365,11 +368,11 @@ export default function OtherServicesPage() {
                                         accept="image/*"
                                         multiple
                                         onChange={handleFileChange}
-                                        className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                                        className="sr-only"
                                     />
-                                    <div className="text-[0.9rem] opacity-80">📷 Drag & drop images here or click to browse (you can select multiple files)</div>
-                                    {fileName && <div className="mt-2 text-[0.85rem] font-bold text-[var(--accent3)]">{fileName}</div>}
-                                </div>
+                                    <div className="text-[0.9rem] opacity-80 pointer-events-none">📷 Drag & drop images here or click anywhere to browse (multiple files allowed)</div>
+                                    {fileName && <div className="mt-2 text-[0.85rem] font-bold text-[var(--accent3)] pointer-events-none">{fileName}</div>}
+                                </label>
                             </div>
 
                             <button 
