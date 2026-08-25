@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import db '@/lib/db'; 
+import db from '@/lib/db'; 
 import { Resend } from 'resend';
 
 // Initialize Resend with your API key
