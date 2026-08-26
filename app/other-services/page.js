@@ -10,6 +10,9 @@ export default function OtherServicesPage() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [referenceCode, setReferenceCode] = useState('');
 
+    // Service Selection State
+    const [selectedService, setSelectedService] = useState('Logo Design');
+
     // Form States
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
@@ -48,6 +51,7 @@ export default function OtherServicesPage() {
                 if (data.fullName) setFullName(data.fullName);
                 if (data.email) setEmail(data.email);
                 if (data.ideas) setIdeas(data.ideas);
+                if (data.serviceType) setSelectedService(data.serviceType);
             } catch (e) {}
         } else if (savedUser) {
             try {
@@ -106,7 +110,7 @@ export default function OtherServicesPage() {
         const authStatus = localStorage.getItem('isLoggedIn');
 
         if (authStatus !== 'true') {
-            const formDataObj = { fullName, email, ideas };
+            const formDataObj = { fullName, email, ideas, serviceType: selectedService };
             localStorage.setItem('pendingOrderData', JSON.stringify(formDataObj));
 
             setStatusMessage({
@@ -127,6 +131,7 @@ export default function OtherServicesPage() {
                 fullName: fullName.trim(),
                 email: email.trim(),
                 ideas: ideas.trim(),
+                serviceType: selectedService,
             };
             localStorage.setItem('pendingOrderData', JSON.stringify(orderData));
 
@@ -298,13 +303,37 @@ export default function OtherServicesPage() {
                 <main className="max-w-[700px] mx-auto w-full p-[140px_30px_80px_30px] flex-1">
                     <div className="text-center mb-10">
                         <div className="inline-flex items-center p-[8px_18px] rounded-full bg-[var(--card)] border border-[var(--glass-border)] mb-[18px] text-[0.85rem] font-bold text-[var(--accent3)]">
-                            ✦ Custom Branding Services
+                            ✦ Custom Design Services
                         </div>
-                        <h1 className="text-[clamp(2.5rem,4vw,3.8rem)] font-bold mb-3">Logo Design Request</h1>
-                        <p className="opacity-85 text-[1.05rem]">Describe your brand vision below to order custom artwork and bespoke logo designs.</p>
+                        <h1 className="text-[clamp(2.5rem,4vw,3.8rem)] font-bold mb-3">Service Request</h1>
+                        <p className="opacity-85 text-[1.05rem]">Choose your desired design service and describe your vision below.</p>
                     </div>
 
                     <div className="bg-[var(--card)] border border-[var(--glass-border)] rounded-[28px] p-[40px_32px] backdrop-blur-[20px] shadow-[var(--shadow)]">
+                        
+                        {/* Service Type Selection Tabs */}
+                        <div className="mb-[28px]">
+                            <label className="block font-semibold mb-2 text-[0.95rem]">Select Service Type</label>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                {['Logo Design', 'Calling Cards', 'Invitations'].map((service) => (
+                                    <button
+                                        key={service}
+                                        type="button"
+                                        onClick={() => setSelectedService(service)}
+                                        className={`p-[12px_16px] rounded-[14px] text-[0.9rem] font-bold border transition cursor-pointer text-center ${
+                                            selectedService === service 
+                                                ? 'bg-[var(--accent3)] text-white border-[var(--accent3)] shadow-[0_5px_15px_rgba(255,159,28,0.3)]' 
+                                                : 'bg-[var(--paper2)] text-[var(--text)] border-[var(--glass-border)] hover:border-[var(--accent3)]'
+                                        }`}
+                                    >
+                                        {service === 'Logo Design' && '🎨 Logo Design'}
+                                        {service === 'Calling Cards' && '📇 Calling Cards'}
+                                        {service === 'Invitations' && '💌 Invitations'}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
                         {statusMessage.text && (
                             <div className={`p-[12px_16px] rounded-[12px] text-[0.9rem] mb-5 text-center font-semibold ${statusMessage.type === 'error' ? 'bg-[rgba(231,76,60,0.15)] text-[var(--error)] border border-[rgba(231,76,60,0.3)]' : 'bg-[rgba(46,204,113,0.15)] text-[var(--success)] border border-[rgba(46,204,113,0.3)]'}`}>
                                 {statusMessage.text}
@@ -341,7 +370,11 @@ export default function OtherServicesPage() {
                             </div>
 
                             <div className="mb-[22px]">
-                                <label htmlFor="ideas" className="block font-semibold mb-2 text-[0.95rem]">Design Ideas & Details</label>
+                                <label htmlFor="ideas" className="block font-semibold mb-2 text-[0.95rem]">
+                                    {selectedService === 'Logo Design' && 'Logo Design Ideas & Details'}
+                                    {selectedService === 'Calling Cards' && 'Calling Card Details (Name, Title, Info, Style)'}
+                                    {selectedService === 'Invitations' && 'Invitation Details (Event type, Theme, Date, Wording)'}
+                                </label>
                                 <textarea 
                                     id="ideas" 
                                     name="ideas" 
@@ -349,7 +382,11 @@ export default function OtherServicesPage() {
                                     value={ideas}
                                     onChange={(e) => setIdeas(e.target.value)}
                                     required 
-                                    placeholder="Describe your brand concepts, color preferences, and artistic style..."
+                                    placeholder={
+                                        selectedService === 'Logo Design' ? "Describe your brand concepts, color preferences, and artistic style..." :
+                                        selectedService === 'Calling Cards' ? "Include text, contact details, layout orientation, and style preferences..." :
+                                        "Include event theme, color scheme, wording, and special instructions..."
+                                    }
                                     className="w-full p-[14px_18px] rounded-[12px] border border-[var(--glass-border)] bg-[var(--paper2)] text-[var(--text)] text-[0.95rem] outline-none transition focus:border-[var(--accent3)] focus:ring-2 focus:ring-[rgba(255,159,28,0.2)] resize-y"
                                 ></textarea>
                             </div>
