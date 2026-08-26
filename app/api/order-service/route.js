@@ -40,9 +40,9 @@ export async function POST(req) {
 
         const connection = typeof db.query === 'function' ? db : (db.promise ? db.promise() : db);
 
-        // Save into MySQL database (saving filePath as null or a text label since we aren't using local disk)
-        const query = `INSERT INTO service_orders (reference_code, user_id, contact_email, design_ideas, reference_file_path, status) VALUES (?, ?, ?, ?, ?, 'Payment Pending Verification')`;
-        const [result] = await connection.query(query, [referenceCode, userId || null, email, ideas, filePath]);
+        // Updated query to save full_name into the database! (Change `full_name` if your column name is different)
+        const query = `INSERT INTO service_orders (reference_code, user_id, contact_email, full_name, design_ideas, reference_file_path, status) VALUES (?, ?, ?, ?, ?, ?, 'Payment Pending Verification')`;
+        const [result] = await connection.query(query, [referenceCode, userId || null, email, fullName, ideas, filePath]);
         const orderId = result.insertId;
 
         // Dynamically get the base URL for the tracker link
@@ -91,6 +91,7 @@ export async function POST(req) {
                 html: `
                     <h2>New Order Submitted</h2>
                     <p><strong>Order ID:</strong> #${orderId}</p>
+                    <p><strong>Customer Name:</strong> ${fullName}</p>
                     <p><strong>Customer Email:</strong> ${email}</p>
                     <p><strong>Reference Code:</strong> <span style="color: #FF9F1C; font-weight: bold;">${referenceCode}</span></p>
                     <p><strong>Design Ideas:</strong> ${ideas}</p>

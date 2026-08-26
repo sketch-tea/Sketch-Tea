@@ -16,9 +16,9 @@ export async function GET(request) {
         // Handle both promise-based and standard connection pools
         const connection = typeof db.query === 'function' ? db : (db.promise ? db.promise() : db);
         
-        // Updated query to also fetch contact_email and user_id for the order history dashboard
+        // Updated query to fetch status, contact_email, user_id, AND full_name (change 'full_name' if your column is named differently like 'name' or 'customer_name')
         const [rows] = await connection.query(
-            'SELECT status, contact_email, user_id FROM service_orders WHERE reference_code = ?', 
+            'SELECT status, contact_email, user_id, full_name FROM service_orders WHERE reference_code = ?', 
             [ref]
         );
         
@@ -35,8 +35,9 @@ export async function GET(request) {
         return NextResponse.json({
             success: true,
             status: order.status,
-            contact_email: order.contact_email, // <-- Added so the tracker knows which email's history to load
-            user_id: order.user_id
+            contact_email: order.contact_email,
+            user_id: order.user_id,
+            customerName: order.full_name // <-- Passed correctly to the frontend
         });
 
     } catch (error) {

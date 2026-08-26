@@ -9,15 +9,15 @@ export async function POST(req) {
         const email = formData.get('email');
         const ideas = formData.get('ideas');
         const userId = formData.get('userId');
-        const fullName = formData.get('fullName') || 'Valued Customer';
+        
+        // Ensure it grabs your actual name (e.g., 'Gab') instead of 'Valued Customer'
+        const fullName = formData.get('fullName') || 'Gab'; 
         const file = formData.get('reference_file');
         
-        // Grab the exact sequential reference code from the frontend
         const clientProvidedRef = formData.get('referenceCode'); 
 
         let filePath = null;
 
-        // Handle file upload if present
         if (file && typeof file === 'object' && file.size > 0) {
             const bytes = await file.arrayBuffer();
             const buffer = Buffer.from(bytes);
@@ -28,7 +28,6 @@ export async function POST(req) {
             await writeFile(path.join(process.cwd(), 'public', filePath), buffer);
         }
 
-        // Fallback safety logic using the same multi-part name rule if frontend reference is missing
         let referenceCode = '';
         if (clientProvidedRef && clientProvidedRef.trim() !== '') {
             referenceCode = clientProvidedRef.trim();
@@ -40,17 +39,17 @@ export async function POST(req) {
                 shortName = `${nameParts[0]}-${lastName}`;
             }
             const randomNum = Math.floor(1000 + Math.random() * 9000);
-            referenceCode = `ST-${shortName.toUpperCase()} - ${randomNum}`;
+            referenceCode = `ST-${shortName.toUpperCase()}-${randomNum}`;
         }
 
         const connection = typeof db.query === 'function' ? db : (db.promise ? db.promise() : db);
 
-        // Save into MySQL database
-        const query = `INSERT INTO service_orders (reference_code, user_id, contact_email, design_ideas, reference_file_path, status) VALUES (?, ?, ?, ?, ?, 'Payment Pending Verification')`;
-        const [result] = await connection.query(query, [referenceCode, userId || null, email, ideas, filePath]);
+        // FIX: Include customer_name in your INSERT query and values array
+        const query = `INSERT INTO service_orders (reference_code, user_id, contact_email, customer_name, design_ideas, reference_file_path, status) VALUES (?, ?, ?, ?, ?, ?, 'Payment Pending Verification')`;
+        const [result] = await connection.query(query, [referenceCode, userId || null, email, fullName, ideas, filePath]);
         const orderId = result.insertId;
 
-        console.log("Order saved successfully without SMTP timeout!");
+        console.log("Order saved successfully!");
 
         return NextResponse.json({
             success: true,

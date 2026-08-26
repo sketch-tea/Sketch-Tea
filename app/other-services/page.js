@@ -24,6 +24,24 @@ export default function OtherServicesPage() {
     const submittingRef = useRef(false);
     const fileInputRef = useRef(null);
 
+    // Dynamic Reference Code Generator matching your email prefixes
+    const generateReferenceCode = (userEmail) => {
+        const cleanEmail = (userEmail || '').trim().toLowerCase();
+        let prefix = 'ST-USER-';
+
+        if (cleanEmail === 'gabbyconlu@gmail.com') {
+            prefix = 'ST-GAB-';
+        } else if (cleanEmail === 'archimary.me@gmail.com' || cleanEmail === 'archimary@gmail.com') {
+            prefix = 'ST-MARY-';
+        } else if (cleanEmail === 'dangabrielconlu@gmail.com') {
+            prefix = 'ST-DAN-';
+        }
+
+        // Generate a random 4-digit ID or look up sequence
+        const randomId = Math.floor(1000 + Math.random() * 9000);
+        return `${prefix}${randomId}`;
+    };
+
     useEffect(() => {
         const timer = setTimeout(() => setLoading(false), 800);
 
@@ -127,11 +145,17 @@ export default function OtherServicesPage() {
         setSubmitting(true);
 
         try {
+            // Generate and store reference code with custom prefix based on email
+            const newRefCode = generateReferenceCode(email);
+            localStorage.setItem('generatedReferenceCode', newRefCode);
+            setReferenceCode(newRefCode);
+
             const orderData = {
                 fullName: fullName.trim(),
                 email: email.trim(),
                 ideas: ideas.trim(),
                 serviceType: selectedService,
+                referenceCode: newRefCode,
             };
             localStorage.setItem('pendingOrderData', JSON.stringify(orderData));
 
@@ -239,14 +263,14 @@ export default function OtherServicesPage() {
                                 className="no-underline text-[var(--accent3)] text-[1.1rem] font-semibold hover:opacity-80 transition flex items-center gap-2" 
                                 onClick={() => setSidebarOpen(false)}
                             >
-                                Track Order
+                                📦 Track ({referenceCode})
                             </Link>
                         ) : (
                             <span 
                                 className="no-underline opacity-40 text-[1.1rem] font-semibold flex items-center gap-2 cursor-not-allowed select-none" 
                                 title="No active order to track"
                             >
-                                Track Order
+                                📦 Track
                             </span>
                         )}
                     </li>
@@ -277,10 +301,10 @@ export default function OtherServicesPage() {
                         {referenceCode ? (
                             <Link 
                                 href={`/order-status/${referenceCode}`} 
-                                title="Track Order"
+                                title={`Track Order: ${referenceCode}`}
                                 className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-[var(--glass-border)] bg-[var(--card)] text-[var(--text)] text-[0.85rem] font-semibold transition hover:border-[var(--accent3)] no-underline"
                             >
-                                📦 Track
+                                📦 Track 
                             </Link>
                         ) : (
                             <span 
@@ -425,7 +449,7 @@ export default function OtherServicesPage() {
 
                 <footer className="text-center p-[30px] border-t border-[var(--glass-border)] text-[0.85rem] opacity-80 mt-auto">
                     <p>&copy; 2026 Sketch Tea Co. All Rights Reserved.</p>
-                </footer>
+                </footer>a
             </div>
         </div>
     );

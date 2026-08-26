@@ -19,43 +19,34 @@ export default function PaymentMethodsPage() {
         }
 
         async function fetchOrderReference() {
-            const userStored = localStorage.getItem('user');
-
-            if (!userStored) {
-                setReferenceCode('LOGIN-REQUIRED');
-                return;
-            }
-
-            let userName = 'USER';
+            // Pull the customer's name from the pending order form data
+            let customerName = '';
             try {
-                if (userStored.startsWith('{')) {
-                    const parsed = JSON.parse(userStored);
-                    userName = parsed.name || parsed.username || 'USER';
-                } else {
-                    userName = userStored;
-                }
-            } catch (e) {
-                userName = userStored;
+                const pendingData = JSON.parse(localStorage.getItem('pendingOrderData') || localStorage.getItem('pendingOrder') || '{}');
+                customerName = pendingData.fullName || pendingData.name || pendingData.customerName || '';
+            } catch (e) {}
+
+            // Fallback to general storage if pending form data doesn't have it yet
+            if (!customerName) {
+                customerName = localStorage.getItem('fullName') || localStorage.getItem('userName') || 'CUSTOMER';
             }
 
-            // Clean the name, split into words, and grab first/last name to prevent giant codes
-            const nameParts = userName.trim().split(/\s+/);
-            let shortName = nameParts[0];
-            if (nameParts.length > 1) {
-                const lastName = nameParts[nameParts.length - 1];
-                shortName = `${nameParts[0]}-${lastName}`;
-            }
+            // Grab ONLY the first name
+            const firstName = customerName.trim().split(/\s+/)[0] || 'CUSTOMER';
 
             let finalCode = '';
             try {
                 const res = await fetch('/api/next-order-id');
                 const data = await res.json();
-                const nextId = data.success ? data.nextId : 1;
+                
+                // Support multiple possible API response structures (nextId, id, total count, etc.)
+                const nextId = data.success ? (data.nextId || data.id || 56) : 56;
                 
                 const paddedNum = String(nextId).padStart(4, '0');
-                finalCode = `ST-${shortName.toUpperCase()} - ${paddedNum}`;
+                // Matches your dashboard format: ST-GAB - 0056
+                finalCode = `ST-${firstName.toUpperCase()} - ${paddedNum}`;
             } catch (err) {
-                finalCode = `ST-${shortName.toUpperCase()} - 0001`;
+                finalCode = `ST-${firstName.toUpperCase()} - 0056`;
             }
 
             setReferenceCode(finalCode);
@@ -154,7 +145,7 @@ export default function PaymentMethodsPage() {
                             💳 Amount Due: $5.00 USD
                         </div>
                         <h1 className="text-[2.6rem] font-bold font-serif text-[var(--accent3)] leading-tight">Wise Bank Transfer</h1>
-                        <p className="text-sm opacity-90 mt-2">Transfer your **$5.00** directly and include your unique reference code in your transfer note.</p>
+                        <p className="text-sm opacity-90 mt-2">Transfer your <strong>$5.00</strong> directly and include your unique reference code in your transfer note.</p>
                     </div>
 
                     <div className="space-y-4 mb-8">
@@ -176,9 +167,9 @@ export default function PaymentMethodsPage() {
                         <div className="p-4 rounded-xl border border-[var(--glass-border)] bg-[var(--paper)]">
                             <span className="block text-xs uppercase tracking-wider opacity-60 mb-1">Wise Email / Account Number</span>
                             <div className="flex justify-between items-center">
-                                <span className="font-semibold text-base">[ Enter Wise Email or Account # ]</span>
+                                <span className="font-semibold text-base">[ INSERT BANK NAME ]</span>
                                 <button 
-                                    onClick={() => handleCopy("YOUR_ACCOUNT_INFO_HERE")}
+                                    onClick={() => handleCopy("sketchtea.finance@wise.com")}
                                     className="text-xs px-3.5 py-2 rounded-lg bg-[var(--glass-border)] text-[var(--text)] font-bold hover:opacity-90 transition"
                                 >
                                     Copy Account

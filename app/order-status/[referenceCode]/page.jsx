@@ -45,18 +45,23 @@ export default function OrderStatusPage() {
                     setLastUpdated(new Date().toLocaleTimeString());
                     if (data.contact_email) fetchedEmail = data.contact_email;
                     if (data.user_id) fetchedUserId = data.user_id;
+                    // Extract name from API response if present
+                    if (data.customerName || data.name) {
+                        setCustomerName(data.customerName || data.name);
+                    }
                 }
             }
 
-            // 2. Fallback to localStorage email if API didn't return it
-            if (!fetchedEmail) {
-                const pendingOrder = localStorage.getItem('pendingOrderData') || localStorage.getItem('pendingOrder');
-                if (pendingOrder) {
-                    try {
-                        const parsed = JSON.parse(pendingOrder);
-                        if (parsed.email) fetchedEmail = parsed.email;
-                    } catch (e) {}
-                }
+            // 2. Fallback to localStorage email/name if API didn't return them
+            const pendingOrder = localStorage.getItem('pendingOrderData') || localStorage.getItem('pendingOrder');
+            if (pendingOrder) {
+                try {
+                    const parsed = JSON.parse(pendingOrder);
+                    if (!fetchedEmail && parsed.email) fetchedEmail = parsed.email;
+                    if (customerName === 'Valued Customer' && (parsed.fullName || parsed.name)) {
+                        setCustomerName(parsed.fullName || parsed.name);
+                    }
+                } catch (e) {}
             }
 
             // 3. Fetch all orders strictly for this specific user/email using the correct singular endpoint
@@ -79,7 +84,7 @@ export default function OrderStatusPage() {
                 setTimeout(() => setIsRefreshing(false), 500);
             }
         }
-    }, [referenceCode]);
+    }, [referenceCode, customerName]);
 
     // Initial load: theme, customer name, and saved status
     useEffect(() => {
@@ -97,8 +102,8 @@ export default function OrderStatusPage() {
         if (pendingOrder) {
             try {
                 const parsed = JSON.parse(pendingOrder);
-                if (parsed.fullName) {
-                    nameToSet = parsed.fullName;
+                if (parsed.fullName || parsed.name) {
+                    nameToSet = parsed.fullName || parsed.name;
                 }
                 if (parsed.status) {
                     setOrderStatus(parsed.status);
@@ -158,6 +163,9 @@ export default function OrderStatusPage() {
     };
 
     const isPaid = orderStatus.toLowerCase().includes('paid') || orderStatus.toLowerCase().includes('approved') || orderStatus.toLowerCase().includes('completed');
+    
+    // Condition to check if the order is genuinely submitted/confirmed rather than pre-rendered blindly
+    const isOrderSubmitted = orderStatus.toLowerCase().includes('submitted') || orderStatus.toLowerCase().includes('pending') || isPaid;
 
     return (
         <div className={`min-h-screen flex flex-col transition-colors duration-500 ${isDark ? 'dark bg-[#122b2a] text-white' : 'bg-[#FFFFFF] text-[#114b46]'}`}>
@@ -181,6 +189,24 @@ export default function OrderStatusPage() {
                 }
                 h1, h2, h3, h4 {
                     font-family: 'Cormorant Garamond', serif;
+                }
+
+                /* Creative Scrollbar Styling */
+                ::-webkit-scrollbar {
+                    width: 6px;
+                    height: 6px;
+                }
+                ::-webkit-scrollbar-track {
+                    background: var(--paper2);
+                    border-radius: 9999px;
+                }
+                ::-webkit-scrollbar-thumb {
+                    background: var(--glass-border);
+                    border-radius: 9999px;
+                    transition: background 0.3s ease;
+                }
+                ::-webkit-scrollbar-thumb:hover {
+                    background: var(--accent3);
                 }
             `}</style>
 
@@ -213,9 +239,11 @@ export default function OrderStatusPage() {
             <div className="flex-1 flex flex-col bg-[image:var(--hero-gradient)]">
                 <main className="max-w-[750px] mx-auto w-full p-[140px_30px_80px_30px] flex-1">
                     <div className="text-center mb-10">
-                        <div className="inline-flex items-center p-[8px_18px] rounded-full bg-[rgba(46,204,113,0.15)] border border-[rgba(46,204,113,0.3)] mb-[18px] text-[0.85rem] font-bold text-[var(--success)]">
-                            ✓ Order Submitted Successfully
-                        </div>
+                        {isOrderSubmitted && (
+                            <div className="inline-flex items-center p-[8px_18px] rounded-full bg-[rgba(46,204,113,0.15)] border border-[rgba(46,204,113,0.3)] mb-[18px] text-[0.85rem] font-bold text-[var(--success)]">
+                                ✓ Order Submitted Successfully
+                            </div>
+                        )}
                         <h1 className="text-[clamp(2.5rem,4vw,3.8rem)] font-bold mb-3">Live Order Tracker</h1>
                         <p className="opacity-85 text-[1.05rem]">Review your active order details and manual payment information below.</p>
                     </div>
@@ -257,7 +285,7 @@ export default function OrderStatusPage() {
                             </div>
                         </div>
 
-                        {/* NEW: Payment / Bank Details Box */}
+                        {/* Payment / Bank Details Box */}
                         <div className="p-5 rounded-2xl bg-[var(--paper2)] border border-[var(--glass-border)] mb-6">
                             <h4 className="font-serif text-[1.3rem] font-bold mb-2 text-[var(--accent3)]">Payment Instructions</h4>
                             <p className="text-[0.9rem] opacity-85 mb-4">Please complete your manual transfer using the details below. Include your reference code <strong>{referenceCode}</strong> in your transaction notes.</p>
